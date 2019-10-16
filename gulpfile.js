@@ -30,9 +30,9 @@ const styles = () =>
 		.pipe(sourcemap.init())
 		.pipe(sass())
 		.pipe(autoprefixer())
-		//log
+		.on("error", err => logs.error(err.toString()))
 		.pipe(dest("./dist/assets/css"))
-		.pipe(rename({suffix: ".min"}))
+		.pipe(rename({ suffix: ".min" }))
 		.pipe(cleanCss())
 		.pipe(sourcemap.write("./"))
 		.pipe(dest("./dist/assets/css"))
