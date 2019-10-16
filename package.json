@@ -14,5 +14,9 @@
     "gulp-sass": "^4.0.2",
     "gulp-sourcemap": "^1.0.1",
     "gulp-uglify": "^3.0.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.6.4",
+    "@babel/preset-env": "^7.6.3"
   }
 }

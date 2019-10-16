@@ -17,6 +17,32 @@ sass.compiler = require('node-sass');
 
 const fontName = 'iconFont';
 
+const templates = () =>
+	src("./app/templates/**/*.pug")
+		.pipe(
+			pug({
+				pretty: true
+			})
+		)
+		.pipe(dest("./dist/html"));
+
+
+const serve = done => {
+	browserSync.init({
+		server: "./dist",
+		startPath: "./html"
+	})
+};
+
+exports.build = parallel(templates);
+exports.default = series(
+	parallel(templates), serve
+);
+
+
+
+
+
 //TODO: babel
 //TODO: uglify
 //TODO: clean-css
