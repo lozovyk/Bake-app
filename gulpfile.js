@@ -8,14 +8,16 @@ const concat = require('gulp-concat');
 const uglify = require('gulp-uglify');
 const iconfont = require('gulp-iconfont');
 const cleanCss = require('gulp-clean-css');
-const sourcemap = require('gulp-sourcemap');
+const sourcemap = require('gulp-sourcemaps');
 const iconfontCSS = require('gulp-iconfont-css');
 const autoprefixer = require('gulp-autoprefixer');
 const browserSync = require('browser-sync').create();
+const sassVar = "scss"; // Change for sass if you use it
 
 sass.compiler = require('node-sass');
 
 const fontName = 'iconFont';
+
 
 const templates = () =>
 	src("./app/templates/**/*.pug")
@@ -26,17 +28,33 @@ const templates = () =>
 		)
 		.pipe(dest("./dist/html"));
 
+const styles = () =>
+	src("./app/assets/styles.scss")
+		.pipe(sourcemap.init())
+		.pipe(sass())
+		.pipe(autoprefixer())
+		//log
+		.pipe(dest(".dist/assets/css"))
+		.pipe(rename({suffix: ".min"}))
+		.pipe(cleanCss())
+		.pipe(sourcemap.write("./"))
+		.pipe(dest(".dist/assets/css"))
+		.pipe(browserSync.stream);
+
+
 
 const serve = done => {
 	browserSync.init({
 		server: "./dist",
 		startPath: "./html"
-	})
+	});
+	done();
 };
 
-exports.build = parallel(templates);
+// exports.iconfont = iconfonts;
+exports.build = parallel(templates, styles);
 exports.default = series(
-	parallel(templates), serve
+	parallel(templates, styles), serve
 );
 
 
