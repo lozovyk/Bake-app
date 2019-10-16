@@ -9,15 +9,12 @@ const uglify = require('gulp-uglify');
 const iconfont = require('gulp-iconfont');
 const cleanCss = require('gulp-clean-css');
 const sourcemap = require('gulp-sourcemaps');
-const iconfontCSS = require('gulp-iconfont-css');
+const iconfontCss = require('gulp-iconfont-css');
 const autoprefixer = require('gulp-autoprefixer');
 const browserSync = require('browser-sync').create();
 const sassVar = "scss"; // Change for sass if you use it
 
 sass.compiler = require('node-sass');
-
-const fontName = 'iconFont';
-
 
 const templates = () =>
 	src("./app/templates/**/*.pug")
@@ -58,6 +55,33 @@ const scripts = () =>
 		.pipe(browserSync.stream());
 
 
+
+
+const fontName = 'iconFont';
+
+const iconFonts = () =>
+	src("./app/assets/img/icons/iconfont/**/*.svg")
+		.pipe(iconfontCss({
+			fontName: fontName,
+			path: './app/assets/scss/base/mixins/_iconfont.scss',
+			targetPath: './../../assets/scss/common/_icons.scss',
+			fontPath: './../fonts/'
+		})
+		)
+		.pipe(
+			iconfont({
+				fontName: fontName,
+				prependUnicode: true,
+				formats: ["ttf", "eot", "woff", "woff2", "svg"],
+				normalize: true,
+				fontWeight: "300",
+				fontHeight: 100,
+				fixedWidth: false,
+				centerHorizontally: false
+			})
+		)
+		.pipe(dest("./app/assets/fonts/"));
+
 const serve = done => {
 	browserSync.init({
 		server: "./dist",
@@ -66,25 +90,36 @@ const serve = done => {
 	done();
 };
 
-// exports.iconfont = iconfonts;
-exports.build = parallel(templates, styles, scripts);
+const reload = done =>{
+	browserSync.reload();
+	done();
+};
+
+const watchAssets = () => {
+	watch(["./app/**/*.js", "./app/**/*.scss"], parallel(styles, scripts));
+	watch("./app/templates/**/*.pug", series(templates, reload));
+};
+
+const fonts = () =>
+	src("./app/assets/fonts/**/*").pipe(dest("./dist/assets/fonts"));
+
+const images = () =>
+	src("./app/assets/img/**/*").pipe(dest("./dist/assets/img"));
+
+
+exports.build = parallel(templates, styles, scripts, fonts, images);
+
+exports.fonts = parallel(iconFonts);
+
 exports.default = series(
-	parallel(templates, styles,scripts), serve
+	parallel(templates, styles, scripts, fonts, images), serve, watchAssets
 );
 
 
 
 
-
-//TODO: babel
-//TODO: uglify
-//TODO: clean-css
-//TODO: webpack
-//TODO: fancy-log
-//TODO: node-sass
-//TODO: rename
-//TODO: concat
-//TODO: autoprefixer
-//TODO: Sourcemap
-//TODO: browser-sync
 //TODO: iconfont, css
+//TODO: webpack
+//TODO: gulp-imagemin
+
+//TODO: сделать билд с минификацией в отличии от дефолта/серва

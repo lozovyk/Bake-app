@@ -1,1 +1,1 @@
-{"version":3,"sources":["styles.scss"],"names":[],"mappings":"AAAA,OACE,WAAA,KACA,OAAA","file":"styles.min.css","sourcesContent":["header{\n  background: #000;\n  height: 40px;\n}\n"]}
+{"version":3,"sources":[],"names":[],"mappings":"","file":"styles.min.css","sourcesContent":[]}
