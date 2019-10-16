@@ -29,18 +29,33 @@ const templates = () =>
 		.pipe(dest("./dist/html"));
 
 const styles = () =>
-	src("./app/assets/styles.scss")
+	src("./app/assets/scss/styles.scss")
 		.pipe(sourcemap.init())
 		.pipe(sass())
 		.pipe(autoprefixer())
 		//log
-		.pipe(dest(".dist/assets/css"))
+		.pipe(dest("./dist/assets/css"))
 		.pipe(rename({suffix: ".min"}))
 		.pipe(cleanCss())
 		.pipe(sourcemap.write("./"))
-		.pipe(dest(".dist/assets/css"))
-		.pipe(browserSync.stream);
+		.pipe(dest("./dist/assets/css"))
+		.pipe(browserSync.stream());
 
+const scripts = () =>
+	src([
+		"./app/assets/js/index.js",
+		"./app/assets/js/components/**/*.js",
+		"./app/assets/js/libs/**/*.js"
+	])
+		.pipe(sourcemap.init())
+		.pipe(concat("index.js"))
+		.pipe(babel())
+		.pipe(dest("./dist/assets/js"))
+		.pipe(uglify())
+		.pipe(rename({suffix: ".min"}))
+		.pipe(sourcemap.write("./"))
+		.pipe(dest("./dist/assets/js"))
+		.pipe(browserSync.stream());
 
 
 const serve = done => {
@@ -52,9 +67,9 @@ const serve = done => {
 };
 
 // exports.iconfont = iconfonts;
-exports.build = parallel(templates, styles);
+exports.build = parallel(templates, styles, scripts);
 exports.default = series(
-	parallel(templates, styles), serve
+	parallel(templates, styles,scripts), serve
 );
 
 
