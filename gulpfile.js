@@ -1,3 +1,7 @@
+//Hi! If you use sass change var below
+
+const styleSyntax = 'scss';
+
 const { watch, src, series, dest, parallel } = require('gulp');
 const pug = require('gulp-pug');
 const sass = require('gulp-sass');
@@ -12,7 +16,6 @@ const sourcemap = require('gulp-sourcemaps');
 const iconfontCss = require('gulp-iconfont-css');
 const autoprefixer = require('gulp-autoprefixer');
 const browserSync = require('browser-sync').create();
-const sassVar = "scss"; // Change for sass if you use it
 
 sass.compiler = require('node-sass');
 
@@ -25,8 +28,9 @@ const templates = () =>
 		)
 		.pipe(dest("./dist/html"));
 
+
 const styles = () =>
-	src("./app/assets/scss/styles.scss")
+	src('./app/assets/'+styleSyntax+'/styles.'+styleSyntax+'')
 		.pipe(sourcemap.init())
 		.pipe(sass())
 		.pipe(autoprefixer())
@@ -38,6 +42,8 @@ const styles = () =>
 		.pipe(dest("./dist/assets/css"))
 		.pipe(browserSync.stream());
 
+
+
 const scripts = () =>
 	src([
 		"./app/assets/js/index.js",
@@ -46,9 +52,9 @@ const scripts = () =>
 	])
 		.pipe(sourcemap.init())
 		.pipe(concat("index.js"))
-		.pipe(babel())
+		// .pipe(babel())
 		.pipe(dest("./dist/assets/js"))
-		.pipe(uglify())
+		// .pipe(uglify())
 		.pipe(rename({suffix: ".min"}))
 		.pipe(sourcemap.write("./"))
 		.pipe(dest("./dist/assets/js"))
@@ -117,8 +123,6 @@ exports.default = series(
 
 
 
-
-//TODO: iconfont, css
 //TODO: webpack
 //TODO: gulp-imagemin
 
