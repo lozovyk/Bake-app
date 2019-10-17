@@ -1,6 +1,7 @@
 //Hi! If you use sass change var below
 
 const styleSyntax = 'scss';
+const fontName = 'iconFont'; // name of your iconfont
 
 const { watch, src, series, dest, parallel } = require('gulp');
 const pug = require('gulp-pug');
@@ -9,8 +10,10 @@ const sass = require('gulp-sass');
 const babel = require('gulp-babel');
 const rename = require('gulp-rename');
 const concat = require('gulp-concat');
-const uglify = require('gulp-uglify');
-const webpack = require('webpack-stream');
+// const uglify = require('gulp-uglify');
+const plumber = require("gulp-plumber");
+const gulpWebpack = require('webpack-stream');
+const webpack = require('webpack');
 const iconfont = require('gulp-iconfont');
 const cleanCss = require('gulp-clean-css');
 const sourcemap = require('gulp-sourcemaps');
@@ -19,6 +22,27 @@ const autoprefixer = require('gulp-autoprefixer');
 const browserSync = require('browser-sync').create();
 
 sass.compiler = require('node-sass');
+
+
+const supportedBrowsers = [
+	'last 3 versions', // http://browserl.ist/?q=last+3+versions
+	'ie >= 10', // http://browserl.ist/?q=ie+%3E%3D+10
+	'edge >= 12', // http://browserl.ist/?q=edge+%3E%3D+12
+	'firefox >= 28', // http://browserl.ist/?q=firefox+%3E%3D+28
+	'chrome >= 21', // http://browserl.ist/?q=chrome+%3E%3D+21
+	'safari >= 6.1', // http://browserl.ist/?q=safari+%3E%3D+6.1
+	'opera >= 12.1', // http://browserl.ist/?q=opera+%3E%3D+12.1
+	'ios >= 7', // http://browserl.ist/?q=ios+%3E%3D+7
+	'android >= 4.4', // http://browserl.ist/?q=android+%3E%3D+4.4
+	'blackberry >= 10', // http://browserl.ist/?q=blackberry+%3E%3D+10
+	'operamobile >= 12.1', // http://browserl.ist/?q=operamobile+%3E%3D+12.1
+	'samsung >= 4', // http://browserl.ist/?q=samsung+%3E%3D+4
+];
+
+const autoprefixerConfig = { browsers: supportedBrowsers, cascade: false };
+const babelConfig = { targets: { browsers: supportedBrowsers } };
+
+const exportPath = './dist/**/*';
 
 const templates = () =>
 	src("./app/templates/**/*.pug")
@@ -30,7 +54,7 @@ const templates = () =>
 		.pipe(dest("./dist/html"));
 
 
-const styles = () =>
+const styles = (mode) => (done) =>
 	src('./app/assets/'+styleSyntax+'/styles.'+styleSyntax+'')
 		.pipe(sourcemap.init())
 		.pipe(sass())
@@ -43,28 +67,15 @@ const styles = () =>
 		.pipe(dest("./dist/assets/css"))
 		.pipe(browserSync.stream());
 
-
-
-const scripts = () =>
-	src([
-		"./app/assets/js/index.js",
-		"./app/assets/js/components/**/*.js",
-		"./app/assets/js/libs/**/*.js"
-	])
-		.pipe(sourcemap.init())
-		.pipe(concat("index.js"))
-		// .pipe(babel())
-		.pipe(dest("./dist/assets/js"))
-		// .pipe(uglify())
-		.pipe(rename({suffix: ".min"}))
-		.pipe(sourcemap.write("./"))
-		.pipe(dest("./dist/assets/js"))
+const scriptsPacking = () =>
+	src("./app/assets/js/**/*.js")
+		.pipe(plumber())
+		.pipe(gulpWebpack({
+			mode: 'production',
+			// devtool: 'source-map'
+		}, webpack))
+		.pipe(dest("./dist/assets/js/"))
 		.pipe(browserSync.stream());
-
-
-
-
-const fontName = 'iconFont';
 
 const iconFonts = () =>
 	src("./app/assets/img/icons/iconfont/**/*.svg")
@@ -103,7 +114,7 @@ const reload = done =>{
 };
 
 const watchAssets = () => {
-	watch(["./app/**/*.js", "./app/**/*.scss"], parallel(styles, scripts));
+	watch(["./app/**/*.js", "./app/**/*.scss"], parallel(styles, scriptsPacking));
 	watch("./app/templates/**/*.pug", series(templates, reload));
 };
 
@@ -113,13 +124,11 @@ const fonts = () =>
 const images = () =>
 	src("./app/assets/img/**/*").pipe(dest("./dist/assets/img"));
 
-
-exports.build = parallel(templates, styles, scripts, fonts, images);
-
 exports.fonts = parallel(iconFonts);
 
+
 exports.default = series(
-	parallel(templates, styles, scripts, fonts, images), serve, watchAssets
+	parallel(templates, styles, fonts, images), serve, scriptsPacking, watchAssets
 );
 
 
