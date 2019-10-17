@@ -5,11 +5,12 @@ const styleSyntax = 'scss';
 const { watch, src, series, dest, parallel } = require('gulp');
 const pug = require('gulp-pug');
 const sass = require('gulp-sass');
-const logs = require('fancy-log');
+// const logs = require('fancy-log');
 const babel = require('gulp-babel');
 const rename = require('gulp-rename');
 const concat = require('gulp-concat');
 const uglify = require('gulp-uglify');
+const webpack = require('webpack-stream');
 const iconfont = require('gulp-iconfont');
 const cleanCss = require('gulp-clean-css');
 const sourcemap = require('gulp-sourcemaps');
@@ -34,7 +35,7 @@ const styles = () =>
 		.pipe(sourcemap.init())
 		.pipe(sass())
 		.pipe(autoprefixer())
-		.on("error", err => logs.error(err.toString()))
+		// .on("error", err => logs.error(err.toString()))
 		.pipe(dest("./dist/assets/css"))
 		.pipe(rename({ suffix: ".min" }))
 		.pipe(cleanCss())
