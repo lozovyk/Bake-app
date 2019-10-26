@@ -3,7 +3,7 @@
 const styleSyntax = 'scss';
 const fontName = 'iconFont'; // name of your iconfont
 
-const { watch, src, series, dest, parallel } = require('gulp');
+const gulp = require('gulp');
 const pug = require('gulp-pug');
 const sass = require('gulp-sass');
 // const logs = require('fancy-log');
@@ -42,98 +42,125 @@ const supportedBrowsers = [
 const autoprefixerConfig = { browsers: supportedBrowsers, cascade: false };
 const babelConfig = { targets: { browsers: supportedBrowsers } };
 
+// Entry point retreive from webpack
+const entry = require('./app/webpack/entry');
+
+// Transform Entry point into an Array for defining in gulp file
+const entryArray = Object.values(entry);
+
 const exportPath = './dist/**/*';
 
-const templates = () =>
-	src("./app/templates/**/*.pug")
-		.pipe(
-			pug({
-				pretty: true
-			})
-		)
-		.pipe(dest("./dist/html"));
-
-
-const styles = (mode) => (done) =>
-	src('./app/assets/'+styleSyntax+'/styles.'+styleSyntax+'')
-		.pipe(sourcemap.init())
-		.pipe(sass())
-		.pipe(autoprefixer())
-		// .on("error", err => logs.error(err.toString()))
-		.pipe(dest("./dist/assets/css"))
-		.pipe(rename({ suffix: ".min" }))
-		.pipe(cleanCss())
-		.pipe(sourcemap.write("./"))
-		.pipe(dest("./dist/assets/css"))
-		.pipe(browserSync.stream());
-
-const scriptsPacking = () =>
-	src("./app/assets/js/**/*.js")
-		.pipe(plumber())
-		.pipe(gulpWebpack({
-			mode: 'production',
-			// devtool: 'source-map'
-		}, webpack))
-		.pipe(dest("./dist/assets/js/"))
-		.pipe(browserSync.stream());
-
-const iconFonts = () =>
-	src("./app/assets/img/icons/iconfont/**/*.svg")
-		.pipe(iconfontCss({
-			fontName: fontName,
-			path: './app/assets/scss/base/mixins/_iconfont.scss',
-			targetPath: './../../assets/scss/common/_icons.scss',
-			fontPath: './../fonts/'
-		})
-		)
-		.pipe(
-			iconfont({
-				fontName: fontName,
-				prependUnicode: true,
-				formats: ["ttf", "eot", "woff", "woff2", "svg"],
-				normalize: true,
-				fontWeight: "300",
-				fontHeight: 100,
-				fixedWidth: false,
-				centerHorizontally: false
-			})
-		)
-		.pipe(dest("./app/assets/fonts/"));
-
-const serve = done => {
-	browserSync.init({
-		server: "./dist",
-		startPath: "./html"
-	});
-	done();
+const srcPath = (file, watch = false) => {
+	if (file === 'scss' && watch === false) return './app/assets/assets/scss/styles.scss';
+	if (file === 'scss' && watch === true) return './app/assets/scss/**/*.scss';
+	if (file === 'js' && watch === false) return entryArray;
+	if (file === 'js' && watch === true) return './app/assets/js/**/*.js';
+	if (file === 'pug') return './app/templates/**/*.pug';
+	if (file === 'img') return './app/assets/img/**/*.{png,jpeg,jpg,svg,gif}';
+	console.error('Unsupported file type entered into Gulp-Builder for Source Path');
 };
 
-const reload = done =>{
-	browserSync.reload();
-	done();
+const distPath = (file, serve = false) => {
+	if (['css', 'js', 'img'].includes(file)) return `./dist/${file}`;
+	if (file === 'html' && serve === false) return './dist/**/*.html';
+	if (file === 'html' && serve === true) return './dist';
+	console.error('Unsupported file type entered into Gulp-Builder for Dist Path');
 };
 
-const watchAssets = () => {
-	watch(["./app/**/*.js", "./app/**/*.scss"], parallel(styles, scriptsPacking));
-	watch("./app/templates/**/*.pug", series(templates, reload));
-};
-
-const fonts = () =>
-	src("./app/assets/fonts/**/*").pipe(dest("./dist/assets/fonts"));
-
-const images = () =>
-	src("./app/assets/img/**/*").pipe(dest("./dist/assets/img"));
-
-exports.fonts = parallel(iconFonts);
 
 
-exports.default = series(
-	parallel(templates, styles, fonts, images), serve, scriptsPacking, watchAssets
-);
+
+
+
+// const templates = () =>
+// 	src("./app/templates/**/*.pug")
+// 		.pipe(
+// 			pug({
+// 				pretty: true
+// 			})
+// 		)
+// 		.pipe(dest("./dist/html"));
+
+
+// const styles = (mode) => (done) =>
+// 	src('./app/assets/'+styleSyntax+'/styles.'+styleSyntax+'')
+// 		.pipe(sourcemap.init())
+// 		.pipe(sass())
+// 		.pipe(autoprefixer())
+// 		// .on("error", err => logs.error(err.toString()))
+// 		.pipe(dest("./dist/assets/css"))
+// 		.pipe(rename({ suffix: ".min" }))
+// 		.pipe(cleanCss())
+// 		.pipe(sourcemap.write("./"))
+// 		.pipe(dest("./dist/assets/css"))
+// 		.pipe(browserSync.stream());
+
+// const scriptsPacking = () =>
+// 	src("./app/assets/js/**/*.js")
+// 		.pipe(plumber())
+// 		.pipe(gulpWebpack({
+// 			mode: 'production',
+// 			// devtool: 'source-map'
+// 		}, webpack))
+// 		.pipe(dest("./dist/assets/js/"))
+// 		.pipe(browserSync.stream());
+
+// const iconFonts = () =>
+// 	src("./app/assets/img/icons/iconfont/**/*.svg")
+// 		.pipe(iconfontCss({
+// 			fontName: fontName,
+// 			path: './app/assets/scss/base/mixins/_iconfont.scss',
+// 			targetPath: './../../assets/scss/common/_icons.scss',
+// 			fontPath: './../fonts/'
+// 		})
+// 		)
+// 		.pipe(
+// 			iconfont({
+// 				fontName: fontName,
+// 				prependUnicode: true,
+// 				formats: ["ttf", "eot", "woff", "woff2", "svg"],
+// 				normalize: true,
+// 				fontWeight: "300",
+// 				fontHeight: 100,
+// 				fixedWidth: false,
+// 				centerHorizontally: false
+// 			})
+// 		)
+// 		.pipe(dest("./app/assets/fonts/"));
+
+// const serve = done => {
+// 	browserSync.init({
+// 		server: "./dist",
+// 		startPath: "./html"
+// 	});
+// 	done();
+// };
+//
+// const reload = done =>{
+// 	browserSync.reload();
+// 	done();
+// };
+
+// const watchAssets = () => {
+// 	watch(["./app/**/*.js", "./app/**/*.scss"], parallel(styles, scriptsPacking));
+// 	watch("./app/templates/**/*.pug", series(templates, reload));
+// };
+//
+// const fonts = () =>
+// 	src("./app/assets/fonts/**/*").pipe(dest("./dist/assets/fonts"));
+//
+// const images = () =>
+// 	src("./app/assets/img/**/*").pipe(dest("./dist/assets/img"));
+//
+// exports.fonts = parallel(iconFonts);
+//
+//
+// exports.default = series(
+// 	parallel(templates, styles, fonts, images), serve, scriptsPacking, watchAssets
+// );
 
 
 
 //TODO: webpack
 //TODO: gulp-imagemin
 
-//TODO: сделать билд с минификацией в отличии от дефолта/серва
