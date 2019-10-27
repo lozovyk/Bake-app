@@ -27,5 +27,12 @@
   "devDependencies": {
     "@babel/core": "^7.6.4",
     "@babel/preset-env": "^7.6.3"
-  }
+  },
+  "name": "Bake App",
+  "version": "1.0.0",
+  "description": "Gulp + Webpack boiler",
+  "main": "index.js",
+  "repository": "https://github.com/lozovyk/Bake-app.git",
+  "author": "Igor Lozovyk <i.lozovyk@gmail.com>",
+  "license": "MIT"
 }
