@@ -54,7 +54,7 @@ const entryArray = Object.values(entry);
 const exportPath = './dist/';
 
 const srcPath = (file, watch = false) => {
-	if (file === 'scss' && watch === false) return './app/assets/assets/scss/styles.scss';
+	if (file === 'scss' && watch === false) return './app/assets/scss/styles.scss';
 	if (file === 'scss' && watch === true) return './app/assets/scss/**/*.scss';
 	if (file === 'js' && watch === false) return entryArray;
 	if (file === 'js' && watch === true) return './app/assets/js/**/*.js';
@@ -106,16 +106,16 @@ const buildStyles = (mode) => (done) => {
 	else if (mode === 'production') outputStyle = 'compressed';
 	else outputStyle = undefined;
 
-	const postcssPlugins = [
-		autoprefixer(autoprefixerConfig),
-		postcssUncss({html: [distPath('pug')]}),
-	];
+	// const postcssPlugins = [
+	// 	autoprefixer(autoprefixerConfig),
+	// 	postcssUncss({html: [distPath('pug')]}),
+	// ];
 
 	['development', 'production'].includes(mode) ? pump([
 		gulp.src(srcPath('scss')),
 		gulpSourcemaps.init({loadMaps: true}),
 		gulpSass({outputStyle}),
-		gulpPostcss(postcssPlugins),
+		// gulpPostcss(postcssPlugins),
 		gulpSourcemaps.write('./'),
 		gulp.dest(distPath('css')),
 		browserSync.stream(),
@@ -125,12 +125,12 @@ const buildStyles = (mode) => (done) => {
 // Build Scripts Task
 const buildScripts = (mode) => (done) => {
 	let streamMode;
-	if (mode === 'development') streamMode = require('./webpack/config.development.js');
-	else if (mode === 'production') streamMode = require('./webpack/config.production.js');
+	if (mode === 'development') streamMode = require('./app/webpack/config.development.js');
+	else if (mode === 'production') streamMode = require('./app/webpack/config.production.js');
 	else streamMode = undefined;
 
 	['development', 'production'].includes(mode) ? pump([
-		gulp.src(srcPath('js')),
+		gulp.src(srcPath('js'), { allowEmpty: true }),
 		vinylNamed(),
 		webpackStream(streamMode, webpack),
 		gulpSourcemaps.init({loadMaps: true}),

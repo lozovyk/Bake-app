@@ -1,4 +1,4 @@
 module.exports = {
-	scripts: '../assets/js/index.js',
-	secondary: './website/src/js/secondary.js',
+	scripts: './app/assets/js/scripts.js',
+	secondary: './app/assets/js/secondary.js',
 };
