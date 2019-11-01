@@ -23,6 +23,9 @@ gulpSass.compiler = require('node-sass');
 
 //CSS and JS Supported
 
+//TODO: Fix bsync
+//TODO: Pug fix
+
 const supportedBrowsersBigList = [
 	'last 3 versions',
 	'ie >= 10',
