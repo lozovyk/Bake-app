@@ -3,7 +3,7 @@ const pump = require('pump');
 const del = require('del');
 const vinylNamed = require('vinyl-named');
 const gulpPug = require('gulp-pug');
-const gulpSass = require('gulp-sass');
+const gulpSass = require('gulp-sass')(require('sass'));
 const gulpZip = require('gulp-zip');
 const gulpImagemin = require('gulp-imagemin');
 const imageminPngquant = require('imagemin-pngquant');
@@ -19,7 +19,7 @@ const autoprefixer = require('gulp-autoprefixer');
 const postcssUncss = require('postcss-uncss');
 const browserSync = require('browser-sync').create();
 
-gulpSass.compiler = require('node-sass');
+// gulpSass.compiler = require('node-sass');
 
 //CSS and JS Supported
 
@@ -105,7 +105,7 @@ const buildImages = (mode) => (done) => {
 // Build Styles Task
 const buildStyles = (mode) => (done) => {
 	let outputStyle;
-	if (mode === 'development') outputStyle = 'nested';
+	if (mode === 'development') outputStyle = 'expanded';
 	else if (mode === 'production') outputStyle = 'compressed';
 	else outputStyle = undefined;
 
