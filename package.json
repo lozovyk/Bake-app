@@ -44,7 +44,7 @@
     "uncss": "^0.16.2",
     "vinyl-named": "^1.1.0",
     "webpack": "^4.16.5",
-    "webpack-cli": "^3.1.0",
+    "webpack-cli": "^3.3.12",
     "webpack-stream": "^5.1.1"
   },
   "packageManager": "yarn@3.2.2",
